@@ -59,7 +59,7 @@ var TabFinder = React.createClass({
 
         var newItems = [];
         var keyword = e.target.value;
-        var items = this.props.items;
+        var items = this.props.tabs;
         var filterRex = new RegExp(keyword);
         for (var i = 0; i < items.length; i++) {
             if (items[i].title.match(filterRex) != null || items[i].url.match(filterRex) != null) {
