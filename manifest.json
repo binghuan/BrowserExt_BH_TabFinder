@@ -10,12 +10,12 @@
         "page": "data/background.html"
     },
     "browser_action": {
-        "default_icon": { // optional
-            "19": "Icon-19.png", // optional
-            "38": "Icon-38.png" // optional
+        "default_icon": {
+            "19": "Icon-19.png",
+            "38": "Icon-38.png"
         },
-        "default_title": "Google Mail", // optional; shown in tooltip
-        "default_popup": "data/popup.html" // optional
+        "default_title": "Tab Finder",
+        "default_popup": "data/popup.html"
     },
     "icons": {
         "16": "Icon-16.png",
