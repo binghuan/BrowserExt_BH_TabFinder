@@ -102,9 +102,13 @@
 
 	    onItemClick: function onItemClick(tab) {
 	        console.log("onItemClick:", tab.index, tab.id);
-	        chrome.tabs.update(tab.id, {
-	            active: true
-	        }, null);
+	        if (window.addon) {
+	            addon.port.emit("activateTab", tab.id);
+	        } else if (window.chrome) {
+	            chrome.tabs.update(tab.id, {
+	                active: true
+	            }, null);
+	        }
 	    },
 	    createItem: function createItem(tab) {
 
@@ -135,9 +139,15 @@
 	            text: ''
 	        };
 	    },
+	    setupTabs: function setupTabs(newItems) {
+	        this.setState({
+	            items: newItems
+	        });
+	        console.log("setupTabs: ", newItems.length);
+	    },
 	    onChange: function onChange(e) {
 
-	        //console.log("Get SearchText: " + e.target.value);
+	        console.log("Get SearchText: " + e.target.value);
 
 	        var newItems = [];
 	        var keyword = e.target.value;
@@ -146,7 +156,6 @@
 	        for (var i = 0; i < items.length; i++) {
 	            if (items[i].title.match(filterRex) != null || items[i].url.match(filterRex) != null) {
 	                newItems.push(items[i]);
-	                //console.log("Add [" + i + "]");
 	            }
 	        }
 	        this.setState({
@@ -172,12 +181,36 @@
 	    }
 	});
 
-	chrome.tabs.getAllInWindow(null, function (tabs) {
-	    console.log("Total tabs: " + tabs.length);
+	if (window.addon) {
+	    // for firefox
+	    console.log("This is firefox add-on");
+	    addon.port.on("showTabList", function showTabList(msg) {
+	        console.log("<< receive msg to showTabList:", msg);
+	        var tabs = JSON.parse(msg);
+	        console.log("Total tabs: " + tabs.length);
+	        for (var i = 0; i < tabs.length; i++) {
+	            tabs[i].url = atob(tabs[i].url);
+	        }
 
-	    _reactDom2.default.render(_react2.default.createElement(TabFinder, { tabs: tabs
-	    }), document.getElementById("popover_page"));
-	});
+	        console.log("ready to setupTabs: ", tabs.length);
+	        var tabFinderClass = _reactDom2.default.render(_react2.default.createElement(TabFinder, { tabs: tabs
+	        }), document.getElementById("popover_page"));
+	        tabFinderClass.setupTabs(tabs);
+	    });
+	} else if (window.chrome) {
+	    // for chrome
+	    chrome.tabs.getAllInWindow(null, function (tabs) {
+	        console.log("Total tabs: " + tabs.length);
+	        _reactDom2.default.render(_react2.default.createElement(TabFinder, { tabs: tabs
+	        }), document.getElementById("popover_page"));
+	    });
+	} else if (window.safari) {
+	    for (var i = 0; i < safari.application.activeBrowserWindow.tabs.length; i++) {
+	        var tabs = safari.application.activeBrowserWindow.tabs;
+	        _reactDom2.default.render(_react2.default.createElement(TabFinder, { tabs: tabs
+	        }), document.getElementById("popover_page"));
+	    }
+	}
 
 /***/ },
 /* 1 */

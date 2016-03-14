@@ -15,14 +15,17 @@ import Divider from 'material-ui/lib/divider';
 
 import AppBar from 'material-ui/lib/app-bar';
 
-
 // tutorial10.js
 var TabList = React.createClass({
     onItemClick: function(tab) {
         console.log("onItemClick:", tab.index, tab.id);
-        chrome.tabs.update(tab.id, {
-            active: true
-        }, null);
+        if(window.addon) {
+            addon.port.emit("activateTab", tab.id);
+        } else if(window.chrome) {
+            chrome.tabs.update(tab.id, {
+                active: true
+            }, null);
+        }
     },
     createItem: function(tab) {
 
@@ -53,9 +56,15 @@ var TabFinder = React.createClass({
             text: ''
         };
     },
+    setupTabs: function(newItems) {
+        this.setState({
+            items: newItems
+        });
+        console.log("setupTabs: " , newItems.length);
+    },
     onChange: function(e) {
 
-        //console.log("Get SearchText: " + e.target.value);
+        console.log("Get SearchText: " + e.target.value);
 
         var newItems = [];
         var keyword = e.target.value;
@@ -64,7 +73,6 @@ var TabFinder = React.createClass({
         for (var i = 0; i < items.length; i++) {
             if (items[i].title.match(filterRex) != null || items[i].url.match(filterRex) != null) {
                 newItems.push(items[i]);
-                //console.log("Add [" + i + "]");
             }
         }
         this.setState({
@@ -87,12 +95,38 @@ var TabFinder = React.createClass({
     }
 });
 
-chrome.tabs.getAllInWindow(null, function(tabs) {
-            console.log("Total tabs: " + tabs.length);
+if(window.addon) {// for firefox
+    console.log("This is firefox add-on");
+    addon.port.on("showTabList", function showTabList(msg) {
+        console.log("<< receive msg to showTabList:", msg);
+        var tabs = JSON.parse(msg);
+        console.log("Total tabs: " + tabs.length);
+        for(var i =0; i< tabs.length ; i++) {
+            tabs[i].url = atob(tabs[i].url);
+        }
 
-            ReactDOM.render( < TabFinder tabs = {
-                    tabs
-                }
-                />, document.getElementById("popover_page"));
+        console.log("ready to setupTabs: " , tabs.length);
+        var tabFinderClass = ReactDOM.render( < TabFinder tabs = {
+                tabs
+            }
+            />, document.getElementById("popover_page"));
+        tabFinderClass.setupTabs(tabs);
 
-            })
+    });
+} else if(window.chrome) {// for chrome
+    chrome.tabs.getAllInWindow(null, function(tabs) {
+                console.log("Total tabs: " + tabs.length);
+                ReactDOM.render( < TabFinder tabs = {
+                        tabs
+                    }
+                    />, document.getElementById("popover_page"));
+                });
+} else if(window.safari) {
+    for(var i =0; i< safari.application.activeBrowserWindow.tabs.length; i++) {
+        var tabs = safari.application.activeBrowserWindow.tabs;
+        ReactDOM.render( < TabFinder tabs = {
+                tabs
+            }
+            />, document.getElementById("popover_page"));
+    }
+}
