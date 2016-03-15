@@ -16,19 +16,15 @@ var panel;
 
 //var urlOfPopup = "http://127.0.0.1/popup.html";
 var urlOfPopup = require('sdk/self').data.url("popup.html");
-
 function createPanel() {
-    console.log(">> createPanel: " + urlOfPopup);
     panel = require("sdk/panel").Panel({
         height: 480,
         width: 640,
         contentURL: urlOfPopup,
         onShow: function() {
-            console.log("--> onShow: ", urlOfPopup);
             panel.port.emit("refreshUi");
         },
         onHide: function() {
-            console.log("--> onHide: ");
             panel.port.emit("hideUi");
         }
     });
@@ -51,14 +47,12 @@ function handleClick(state) {
 
     var tabArray = [];
     for (let tab of tabs) {
-        console.log("tabID:", tab.id, "tabURL:", tab.url);
         tabArray.push({
             "id": tab.id,
             "title": tab.title,
             "url": base64.encode(tab.url)
         });
     }
-    console.log(">> send msg to showTabList", JSON.stringify(tabArray));
 
     panel.port.emit("showTabList", JSON.stringify(tabArray));
 }

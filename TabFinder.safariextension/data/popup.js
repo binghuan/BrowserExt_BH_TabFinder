@@ -18,7 +18,6 @@ import AppBar from 'material-ui/lib/app-bar';
 // tutorial10.js
 var TabList = React.createClass({
     onItemClick: function(tab) {
-        console.log("onItemClick:", tab.index, tab.id);
         if(window.addon) {
             addon.port.emit("activateTab", tab.id);
         } else if(window.chrome) {
@@ -28,9 +27,6 @@ var TabList = React.createClass({
         }
     },
     createItem: function(tab) {
-
-        //console.log(">> createItem: ", item);
-
         return <ListItem key={tab.id} onClick = {
             this.onItemClick.bind(this, tab)
         }
@@ -60,12 +56,8 @@ var TabFinder = React.createClass({
         this.setState({
             items: newItems
         });
-        console.log("setupTabs: " , newItems.length);
     },
     onChange: function(e) {
-
-        console.log("Get SearchText: " + e.target.value);
-
         var newItems = [];
         var keyword = e.target.value;
         var items = this.props.tabs;
@@ -96,16 +88,11 @@ var TabFinder = React.createClass({
 });
 
 if(window.addon) {// for firefox
-    console.log("This is firefox add-on");
     addon.port.on("showTabList", function showTabList(msg) {
-        console.log("<< receive msg to showTabList:", msg);
         var tabs = JSON.parse(msg);
-        console.log("Total tabs: " + tabs.length);
         for(var i =0; i< tabs.length ; i++) {
             tabs[i].url = atob(tabs[i].url);
         }
-
-        console.log("ready to setupTabs: " , tabs.length);
         var tabFinderClass = ReactDOM.render( < TabFinder tabs = {
                 tabs
             }
@@ -115,7 +102,6 @@ if(window.addon) {// for firefox
     });
 } else if(window.chrome) {// for chrome
     chrome.tabs.getAllInWindow(null, function(tabs) {
-                console.log("Total tabs: " + tabs.length);
                 ReactDOM.render( < TabFinder tabs = {
                         tabs
                     }

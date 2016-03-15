@@ -101,7 +101,6 @@
 	    displayName: 'TabList',
 
 	    onItemClick: function onItemClick(tab) {
-	        console.log("onItemClick:", tab.index, tab.id);
 	        if (window.addon) {
 	            addon.port.emit("activateTab", tab.id);
 	        } else if (window.chrome) {
@@ -111,9 +110,6 @@
 	        }
 	    },
 	    createItem: function createItem(tab) {
-
-	        //console.log(">> createItem: ", item);
-
 	        return _react2.default.createElement(_listItem2.default, { key: tab.id, onClick: this.onItemClick.bind(this, tab),
 	            primaryText: tab.title,
 	            secondaryText: tab.url
@@ -143,12 +139,8 @@
 	        this.setState({
 	            items: newItems
 	        });
-	        console.log("setupTabs: ", newItems.length);
 	    },
 	    onChange: function onChange(e) {
-
-	        console.log("Get SearchText: " + e.target.value);
-
 	        var newItems = [];
 	        var keyword = e.target.value;
 	        var items = this.props.tabs;
@@ -183,16 +175,11 @@
 
 	if (window.addon) {
 	    // for firefox
-	    console.log("This is firefox add-on");
 	    addon.port.on("showTabList", function showTabList(msg) {
-	        console.log("<< receive msg to showTabList:", msg);
 	        var tabs = JSON.parse(msg);
-	        console.log("Total tabs: " + tabs.length);
 	        for (var i = 0; i < tabs.length; i++) {
 	            tabs[i].url = atob(tabs[i].url);
 	        }
-
-	        console.log("ready to setupTabs: ", tabs.length);
 	        var tabFinderClass = _reactDom2.default.render(_react2.default.createElement(TabFinder, { tabs: tabs
 	        }), document.getElementById("popover_page"));
 	        tabFinderClass.setupTabs(tabs);
@@ -200,7 +187,6 @@
 	} else if (window.chrome) {
 	    // for chrome
 	    chrome.tabs.getAllInWindow(null, function (tabs) {
-	        console.log("Total tabs: " + tabs.length);
 	        _reactDom2.default.render(_react2.default.createElement(TabFinder, { tabs: tabs
 	        }), document.getElementById("popover_page"));
 	    });
