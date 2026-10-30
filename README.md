@@ -1,5 +1,11 @@
 # Tab Finder Browser Extension
 
+## Feature overview
+
+![BrowserExt_BH_TabFinder — feature flow diagram](README-assets/project-preview.svg)
+
+Conceptual feature flow based on this repository; this is a documentation diagram, not an application screenshot.
+
 <img src="Icon.png" width="auto" height="240px">
 
 A cross-browser extension that allows users to quickly search and navigate through all open tabs. Built with React and Material-UI for a modern, responsive interface.
